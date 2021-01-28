@@ -107,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
                 case 0:
                     return getString(R.string.label_manage);
                 case 1:
-                    return getString(R.string.label_add_account);
+                    return "Add account A";
                 case 2:
                     return getString(R.string.label_logs);
                 default:
