@@ -32,7 +32,7 @@ public class DBAccess extends SQLiteOpenHelper {
 
     //Inner class to hold details of Account table
     public static class AccountTable implements BaseColumns{
-        public static final String TABLE_NAME = "account";
+        public static final String TABLE_NAME = "`account`";
         public static final String COLUMN_ACC_NO = "acc_no";
         public static final String COLUMN_BANK = "bank";
         public static final String COLUMN_HOLDER = "holder";

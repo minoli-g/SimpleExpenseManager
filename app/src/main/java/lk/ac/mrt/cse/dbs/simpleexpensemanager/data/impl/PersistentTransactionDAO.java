@@ -32,7 +32,7 @@ public class PersistentTransactionDAO implements TransactionDAO {
 
         SQLiteDatabase db = dbAccess.getWritableDatabase();
 
-        SimpleDateFormat sdf = new SimpleDateFormat("dd-mm-yyyy", Locale.ENGLISH);
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy", Locale.ENGLISH);
 
         ContentValues transaction = new ContentValues();
         transaction.put(DBAccess.TransactionTable.COLUMN_ACC_NO,accountNo);
@@ -41,6 +41,9 @@ public class PersistentTransactionDAO implements TransactionDAO {
         transaction.put(DBAccess.TransactionTable.COLUMN_AMOUNT,amount);
 
         long newRowID = db.insert(DBAccess.TransactionTable.TABLE_NAME,null,transaction);
+
+        //change account balance, add synchronization in application and DB level
+        updateAccount(date,accountNo,expenseType,amount);
     }
 
     @Override
@@ -69,15 +72,35 @@ public class PersistentTransactionDAO implements TransactionDAO {
 
             Transaction newTrans = new Transaction(date,acc_no,type,amount);
 
-            //change account balance, add synchronization in application and DB level
             transactions.add(newTrans);
         }
 
         return transactions;
     }
 
-    private boolean updateAccount(Transaction transaction){
-        return false;
+    private boolean updateAccount(Date date, String accountNo, ExpenseType type, double amount){
+
+        SQLiteDatabase db = dbAccess.getWritableDatabase();
+
+        String[] columns = {DBAccess.AccountTable.COLUMN_BALANCE};
+
+        //want to get current balance of that account
+        Cursor cursor = db.query(DBAccess.AccountTable.TABLE_NAME, columns,
+                DBAccess.AccountTable.COLUMN_ACC_NO + "= \"" +accountNo+ "\"",
+                null,null,null,null);
+
+        cursor.moveToNext();
+        Double balance = cursor.getDouble(cursor.getColumnIndex(DBAccess.AccountTable.COLUMN_BALANCE));
+
+        //update that record with the new balance
+        Double newBalance = (type==ExpenseType.EXPENSE) ? (balance-amount) : (balance+amount);
+
+        String UPDATE_SQL = "UPDATE " + DBAccess.AccountTable.TABLE_NAME +
+                " set " + DBAccess.AccountTable.COLUMN_BALANCE + " = " + newBalance +
+                " WHERE " + DBAccess.AccountTable.COLUMN_ACC_NO + " = \"" + accountNo + "\";";
+
+        db.execSQL(UPDATE_SQL);
+        return true;
     }
 
     @Override
