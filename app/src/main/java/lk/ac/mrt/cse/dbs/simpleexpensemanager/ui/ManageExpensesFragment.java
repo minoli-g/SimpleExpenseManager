@@ -46,6 +46,7 @@ import static lk.ac.mrt.cse.dbs.simpleexpensemanager.Constants.EXPENSE_MANAGER;
  */
 public class ManageExpensesFragment extends Fragment implements View.OnClickListener {
     private Button submitButton;
+    private Button refreshAccountsButton; ///////
     private EditText amount;
     private Spinner accountSelector;
     private RadioGroup expenseTypeGroup;
@@ -68,6 +69,9 @@ public class ManageExpensesFragment extends Fragment implements View.OnClickList
         View rootView = inflater.inflate(R.layout.fragment_manage_expenses, container, false);
         submitButton = (Button) rootView.findViewById(R.id.submit_amount);
         submitButton.setOnClickListener(this);
+
+        refreshAccountsButton = (Button) rootView.findViewById(R.id.refresh_accounts);
+        refreshAccountsButton.setOnClickListener(this);
 
         amount = (EditText) rootView.findViewById(R.id.amount);
         accountSelector = (Spinner) rootView.findViewById(R.id.account_selector);
@@ -109,6 +113,20 @@ public class ManageExpensesFragment extends Fragment implements View.OnClickList
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
+
+            case R.id.refresh_accounts:
+                View rootView = getView();
+                accountSelector = (Spinner) rootView.findViewById(R.id.account_selector);
+                final List<String> accountsList = currentExpenseManager.getAccountNumbersList();
+                ArrayAdapter<String> adapter = null;
+                if (currentExpenseManager != null) {
+                    adapter = new ArrayAdapter<>(this.getActivity(), R.layout.support_simple_spinner_dropdown_item,
+                            //currentExpenseManager.getAccountNumbersList());
+                            accountsList);
+                }
+                accountSelector.setAdapter(adapter);
+                Log.e("L","onclick refreshing accounts");
+                break;
 
 
             case R.id.submit_amount:

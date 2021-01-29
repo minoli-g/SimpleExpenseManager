@@ -3,6 +3,7 @@ package lk.ac.mrt.cse.dbs.simpleexpensemanager.data.impl;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -40,10 +41,17 @@ public class PersistentTransactionDAO implements TransactionDAO {
         transaction.put(DBAccess.TransactionTable.COLUMN_TYPE,expenseType.toString());
         transaction.put(DBAccess.TransactionTable.COLUMN_AMOUNT,amount);
 
-        long newRowID = db.insert(DBAccess.TransactionTable.TABLE_NAME,null,transaction);
-
-        //change account balance, add synchronization in application and DB level
-        updateAccount(date,accountNo,expenseType,amount);
+        db.beginTransaction();
+        try {
+            long newRowID = db.insert(DBAccess.TransactionTable.TABLE_NAME, null, transaction);
+            updateAccount(accountNo, expenseType, amount);
+            db.setTransactionSuccessful();
+        } catch (Exception e) {
+            Log.e("E","caught the exception");
+            //implement visual display if theres time
+        } finally {
+            db.endTransaction();
+        }
     }
 
     @Override
@@ -51,7 +59,7 @@ public class PersistentTransactionDAO implements TransactionDAO {
 
         SQLiteDatabase db = dbAccess.getReadableDatabase();
 
-        SimpleDateFormat sdf = new SimpleDateFormat("dd-mm-yyyy", Locale.ENGLISH);
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy", Locale.ENGLISH);
 
         String[] columns = {DBAccess.TransactionTable.COLUMN_ACC_NO,DBAccess.TransactionTable.COLUMN_DATE,
                 DBAccess.TransactionTable.COLUMN_TYPE, DBAccess.TransactionTable.COLUMN_AMOUNT};
@@ -78,7 +86,7 @@ public class PersistentTransactionDAO implements TransactionDAO {
         return transactions;
     }
 
-    private boolean updateAccount(Date date, String accountNo, ExpenseType type, double amount){
+    private boolean updateAccount(String accountNo, ExpenseType type, double amount){
 
         SQLiteDatabase db = dbAccess.getWritableDatabase();
 

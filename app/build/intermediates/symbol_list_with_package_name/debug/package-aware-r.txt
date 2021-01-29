@@ -661,6 +661,7 @@ id pin
 id progress_circular
 id progress_horizontal
 id radio
+id refresh_accounts
 id right
 id screen
 id scroll
