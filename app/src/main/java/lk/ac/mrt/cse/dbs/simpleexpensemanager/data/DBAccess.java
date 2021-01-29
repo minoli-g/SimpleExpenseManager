@@ -1,0 +1,61 @@
+package lk.ac.mrt.cse.dbs.simpleexpensemanager.data;
+
+import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
+import android.provider.BaseColumns;
+
+import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.model.Transaction;
+
+public class DBAccess extends SQLiteOpenHelper {
+
+    public static final int DATABASE_VERSION = 1;
+    public static final String DATABASE_NAME = "180192L.db";
+
+    public static final String SQL_CREATE_ACCOUNT_TABLE = "CREATE TABLE " + AccountTable.TABLE_NAME + " (" +
+            AccountTable.COLUMN_ACC_NO + " TEXT PRIMARY KEY," +
+            AccountTable.COLUMN_BANK + " TEXT," +
+            AccountTable.COLUMN_HOLDER + " TEXT," +
+            AccountTable.COLUMN_BALANCE + " REAL)";
+
+    public static final String SQL_CREATE_TRANSACTION_TABLE = "CREATE TABLE `" + TransactionTable.TABLE_NAME + "` (" +
+            TransactionTable.COLUMN_DATE + " TEXT," +
+            TransactionTable.COLUMN_ACC_NO + " TEXT," +
+            TransactionTable.COLUMN_TYPE + " TEXT," +
+            TransactionTable.COLUMN_AMOUNT + " REAL)";
+
+    public static final String SQL_DROP_ACCOUNT_TABLE = "DROP TABLE IF EXISTS `account`";
+
+    public DBAccess(Context context)  {
+        super(context, DATABASE_NAME, null, DATABASE_VERSION);
+    }
+
+    //Inner class to hold details of Account table
+    public static class AccountTable implements BaseColumns{
+        public static final String TABLE_NAME = "account";
+        public static final String COLUMN_ACC_NO = "acc_no";
+        public static final String COLUMN_BANK = "bank";
+        public static final String COLUMN_HOLDER = "holder";
+        public static final String COLUMN_BALANCE = "balance";
+    }
+
+    public static class TransactionTable implements BaseColumns{
+        public static final String TABLE_NAME = "transaction";
+        public static final String COLUMN_ACC_NO = "acc_no";
+        public static final String COLUMN_DATE = "date";
+        public static final String COLUMN_TYPE = "type";
+        public static final String COLUMN_AMOUNT = "amount";
+    }
+
+    @Override
+    public void onCreate(SQLiteDatabase db) {
+        db.execSQL(SQL_CREATE_ACCOUNT_TABLE);
+        db.execSQL(SQL_CREATE_TRANSACTION_TABLE);
+    }
+
+    @Override
+    public void onUpgrade(SQLiteDatabase db, int i, int i1) {
+        db.execSQL(SQL_DROP_ACCOUNT_TABLE);
+        onCreate(db);
+    }
+}

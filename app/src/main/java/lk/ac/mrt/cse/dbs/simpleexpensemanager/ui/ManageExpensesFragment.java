@@ -20,9 +20,11 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -30,6 +32,8 @@ import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
+
+import java.util.List;
 
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.R;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.control.ExpenseManager;
@@ -68,11 +72,14 @@ public class ManageExpensesFragment extends Fragment implements View.OnClickList
         amount = (EditText) rootView.findViewById(R.id.amount);
         accountSelector = (Spinner) rootView.findViewById(R.id.account_selector);
         currentExpenseManager = (ExpenseManager) getArguments().get(EXPENSE_MANAGER);
-        ArrayAdapter<String> adapter =
-                null;
+
+        final List<String> accountsList = currentExpenseManager.getAccountNumbersList();
+
+        ArrayAdapter<String> adapter = null;
         if (currentExpenseManager != null) {
             adapter = new ArrayAdapter<>(this.getActivity(), R.layout.support_simple_spinner_dropdown_item,
-                    currentExpenseManager.getAccountNumbersList());
+                    //currentExpenseManager.getAccountNumbersList());
+                    accountsList);
         }
         accountSelector.setAdapter(adapter);
 
@@ -84,9 +91,30 @@ public class ManageExpensesFragment extends Fragment implements View.OnClickList
     }
 
     @Override
+    public void onResume() {
+        View rootView = getView();
+        accountSelector = (Spinner) rootView.findViewById(R.id.account_selector);
+        final List<String> accountsList = currentExpenseManager.getAccountNumbersList();
+        ArrayAdapter<String> adapter = null;
+        if (currentExpenseManager != null) {
+            adapter = new ArrayAdapter<>(this.getActivity(), R.layout.support_simple_spinner_dropdown_item,
+                    //currentExpenseManager.getAccountNumbersList());
+                    accountsList);
+        }
+        accountSelector.setAdapter(adapter);
+        Log.e("L","resettinggg");
+        super.onResume();
+    }
+
+    @Override
     public void onClick(View view) {
         switch (view.getId()) {
+
+
             case R.id.submit_amount:
+
+                Log.e("L","submiii");
+
                 String selectedAccount = (String) accountSelector.getSelectedItem();
                 String amountStr = amount.getText().toString();
                 RadioButton checkedType = (RadioButton) getActivity().findViewById(expenseTypeGroup
