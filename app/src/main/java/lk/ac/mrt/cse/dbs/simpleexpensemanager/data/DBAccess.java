@@ -18,7 +18,7 @@ public class DBAccess extends SQLiteOpenHelper {
             AccountTable.COLUMN_HOLDER + " TEXT," +
             AccountTable.COLUMN_BALANCE + " REAL)";
 
-    public static final String SQL_CREATE_TRANSACTION_TABLE = "CREATE TABLE `" + TransactionTable.TABLE_NAME + "` (" +
+    public static final String SQL_CREATE_TRANSACTION_TABLE = "CREATE TABLE " + TransactionTable.TABLE_NAME + " (" +
             TransactionTable.COLUMN_DATE + " TEXT," +
             TransactionTable.COLUMN_ACC_NO + " TEXT," +
             TransactionTable.COLUMN_TYPE + " TEXT," +
@@ -40,7 +40,7 @@ public class DBAccess extends SQLiteOpenHelper {
     }
 
     public static class TransactionTable implements BaseColumns{
-        public static final String TABLE_NAME = "transaction";
+        public static final String TABLE_NAME = "`transaction`";
         public static final String COLUMN_ACC_NO = "acc_no";
         public static final String COLUMN_DATE = "date";
         public static final String COLUMN_TYPE = "type";
