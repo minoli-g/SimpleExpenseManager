@@ -41,17 +41,9 @@ public class PersistentTransactionDAO implements TransactionDAO {
         transaction.put(DBAccess.TransactionTable.COLUMN_TYPE,expenseType.toString());
         transaction.put(DBAccess.TransactionTable.COLUMN_AMOUNT,amount);
 
-        db.beginTransaction();
-        try {
-            long newRowID = db.insert(DBAccess.TransactionTable.TABLE_NAME, null, transaction);
-            updateAccount(accountNo, expenseType, amount);
-            db.setTransactionSuccessful();
-        } catch (Exception e) {
-            Log.e("E","caught the exception");
-            //implement visual display if theres time
-        } finally {
-            db.endTransaction();
-        }
+
+        long newRowID = db.insert(DBAccess.TransactionTable.TABLE_NAME, null, transaction);
+
     }
 
     @Override
@@ -84,31 +76,6 @@ public class PersistentTransactionDAO implements TransactionDAO {
         }
 
         return transactions;
-    }
-
-    private boolean updateAccount(String accountNo, ExpenseType type, double amount){
-
-        SQLiteDatabase db = dbAccess.getWritableDatabase();
-
-        String[] columns = {DBAccess.AccountTable.COLUMN_BALANCE};
-
-        //want to get current balance of that account
-        Cursor cursor = db.query(DBAccess.AccountTable.TABLE_NAME, columns,
-                DBAccess.AccountTable.COLUMN_ACC_NO + "= \"" +accountNo+ "\"",
-                null,null,null,null);
-
-        cursor.moveToNext();
-        Double balance = cursor.getDouble(cursor.getColumnIndex(DBAccess.AccountTable.COLUMN_BALANCE));
-
-        //update that record with the new balance
-        Double newBalance = (type==ExpenseType.EXPENSE) ? (balance-amount) : (balance+amount);
-
-        String UPDATE_SQL = "UPDATE " + DBAccess.AccountTable.TABLE_NAME +
-                " set " + DBAccess.AccountTable.COLUMN_BALANCE + " = " + newBalance +
-                " WHERE " + DBAccess.AccountTable.COLUMN_ACC_NO + " = \"" + accountNo + "\";";
-
-        db.execSQL(UPDATE_SQL);
-        return true;
     }
 
     @Override

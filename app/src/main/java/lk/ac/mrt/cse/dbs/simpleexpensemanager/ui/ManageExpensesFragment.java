@@ -17,6 +17,7 @@
 package lk.ac.mrt.cse.dbs.simpleexpensemanager.ui;
 
 import android.content.DialogInterface;
+import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
@@ -162,6 +163,18 @@ public class ManageExpensesFragment extends Fragment implements View.OnClickList
                                         dialog.cancel();
                                     }
                                 }).setIcon(android.R.drawable.ic_dialog_alert).show();
+
+                    } catch (SQLiteException s) {
+                        new AlertDialog.Builder(this.getActivity())
+                                .setTitle(this.getString(R.string.msg_account_update_unable) + selectedAccount)
+                                .setMessage(this.getString(R.string.data_access_error))
+                                .setNeutralButton(this.getString(R.string.msg_ok),
+                                        new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                dialog.cancel();
+                                            }
+                                        }).setIcon(android.R.drawable.ic_dialog_alert).show();
                     }
                 }
                 amount.getText().clear();

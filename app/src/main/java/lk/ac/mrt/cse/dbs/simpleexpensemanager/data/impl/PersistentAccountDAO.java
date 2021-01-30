@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.*;
+import android.util.Log;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -64,13 +65,9 @@ public class PersistentAccountDAO implements AccountDAO{
             accounts.add(newAcc);
         }
 
+        cursor.close();
         return accounts;
 
-    }
-
-    @Override
-    public Account getAccount(String accountNo) throws InvalidAccountException {
-        return null;
     }
 
     @Override
@@ -88,16 +85,80 @@ public class PersistentAccountDAO implements AccountDAO{
 
     }
 
+
+    @Override
+    public void updateBalance(String accountNo, ExpenseType expenseType, double amount) throws InvalidAccountException {
+
+        SQLiteDatabase db = dbAccess.getWritableDatabase();
+
+        String[] columns = {DBAccess.AccountTable.COLUMN_BALANCE};
+        String[] whereArgs = {accountNo};    //used for prepared statement
+
+        //want to get current balance of that account
+        Cursor cursor = db.query(DBAccess.AccountTable.TABLE_NAME, columns,
+                DBAccess.AccountTable.COLUMN_ACC_NO + "= ?", whereArgs,
+                null,null,null);
+
+        if(cursor.getCount()>0) {   //account exists
+
+            cursor.moveToNext();
+            Double balance = cursor.getDouble(cursor.getColumnIndex(DBAccess.AccountTable.COLUMN_BALANCE));
+            cursor.close();
+
+            //update that record with the new balance
+            Double newBalance = (expenseType == ExpenseType.EXPENSE) ? (balance - amount) : (balance + amount);
+
+
+            ContentValues updateBal = new ContentValues();
+            updateBal.put(DBAccess.AccountTable.COLUMN_BALANCE,newBalance);
+
+            int x = db.update(DBAccess.AccountTable.TABLE_NAME,updateBal,
+                    //DBAccess.AccountTable.COLUMN_ACC_NO + " = \"" + accountNo + "\"",null);
+                    DBAccess.AccountTable.COLUMN_ACC_NO + "= ?", whereArgs);
+
+        }
+        else {
+            cursor.close();
+            throw new InvalidAccountException("Account does not exist");
+        }
+    }
+
+    /**Unused Methods**/
+
     @Override
     public void removeAccount(String accountNo) throws InvalidAccountException {
 
     }
 
     @Override
-    public void updateBalance(String accountNo, ExpenseType expenseType, double amount) throws InvalidAccountException {
+    public Account getAccount(String accountNo) throws InvalidAccountException {
 
+        SQLiteDatabase db = dbAccess.getReadableDatabase();
+        String[] columns = {DBAccess.AccountTable.COLUMN_ACC_NO,DBAccess.AccountTable.COLUMN_BANK,
+                DBAccess.AccountTable.COLUMN_HOLDER, DBAccess.AccountTable.COLUMN_BALANCE};
+        String[] whereArgs = {accountNo};    //used for prepared statement
+
+        Cursor cursor = db.query(DBAccess.AccountTable.TABLE_NAME,columns,
+                DBAccess.AccountTable.COLUMN_ACC_NO + "= ?", whereArgs,null,null,null);
+
+        List<Account> accounts = new ArrayList<Account>();
+
+        if(cursor.getCount()>0) {
+            cursor.moveToNext();
+
+            String acc_no = cursor.getString(cursor.getColumnIndex(DBAccess.AccountTable.COLUMN_ACC_NO));
+            String bank = cursor.getString(cursor.getColumnIndex(DBAccess.AccountTable.COLUMN_BANK));
+            String holder = cursor.getString(cursor.getColumnIndex(DBAccess.AccountTable.COLUMN_HOLDER));
+            Double balance = cursor.getDouble(cursor.getColumnIndex(DBAccess.AccountTable.COLUMN_BALANCE));
+
+            Account newAcc = new Account(acc_no, bank, holder, balance);
+
+            cursor.close();
+            return newAcc;
+
+        } else {
+            throw new InvalidAccountException("Account does not exist");
+        }
     }
-
-
 
 }

@@ -1,23 +1,49 @@
 package lk.ac.mrt.cse.dbs.simpleexpensemanager.control;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
+
+import java.util.Calendar;
+import java.util.Date;
 
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.AccountDAO;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.DBAccess;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.TransactionDAO;
+import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.exception.InvalidAccountException;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.impl.InMemoryAccountDAO;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.impl.InMemoryTransactionDAO;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.impl.PersistentAccountDAO;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.impl.PersistentTransactionDAO;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.model.Account;
+import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.model.ExpenseType;
 
 public class PersistentExpenseManager extends ExpenseManager {
     private Context context;
+    private DBAccess dbAccess;
 
     public PersistentExpenseManager(Context context) {
 
         this.context = context;
+        this.dbAccess = new DBAccess(context);
         setup();
+    }
+
+    @Override
+    public void updateAccountBalance(String accountNo, int day, int month, int year, ExpenseType expenseType, String amount)
+            throws InvalidAccountException {
+
+        SQLiteDatabase db = dbAccess.getWritableDatabase();
+
+        db.beginTransaction();     //to keep DB in consistent state, grouping transactions.
+        try {
+            super.updateAccountBalance(accountNo, day, month, year, expenseType, amount);  //there are many transactions inside this.
+            db.setTransactionSuccessful();
+        } catch (Exception e){
+            throw e;
+        } finally {
+            db.endTransaction();
+        }
     }
 
     @Override
@@ -34,7 +60,6 @@ public class PersistentExpenseManager extends ExpenseManager {
         //setAccountsDAO(inMemoryAccountDAO);
          */
 
-        DBAccess dbAccess = new DBAccess(context);
         AccountDAO persistentADO = new PersistentAccountDAO(dbAccess);
         TransactionDAO persistentTDO = new PersistentTransactionDAO(dbAccess);
 
