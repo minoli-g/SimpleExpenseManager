@@ -11,6 +11,8 @@ Certain groups of actions which were executed together had the possibility of le
 
 When a new account is inserted, or an old account is deleted, the dropdown lists of accounts and the transaction logs shown on the screen must be updated. Buttons were added at the base of each screen to manually refresh those views. If, without refreshing with these buttons, some action is attempted using an account which is no longer in the system, an error message will be displayed.
 
+Dummy data was added at the moment of creating the database. 
+
 
 
 ## Description
