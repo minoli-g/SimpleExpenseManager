@@ -1,6 +1,18 @@
 # SimpleExpenseManager
 This is an android based basic expense manager application which will be used as a lab assignment for CS3042 - Database Systems course module.
 
+## Changes Implemented:
+Persistent database was added using SQLite. Android's SQLiteDatabase and SQLiteHelper classes were used for this.
+Database is initialized and accessed through DBAccess class, which is used by the PersistentAccountDAO, PersistentTransactionDAO and PersistentExpenseManager classes.
+
+Added the ability to delete account by implementing the removeAccount method of AccountDAO interface. Also added a method to TransactionDAO interface which allows to delete all transactions linked to a particular account. 
+
+Certain groups of actions which were executed together had the possibility of leaving the database in an inconsistent state if the execution failed halfway. The ExpenseManager class had methods (updateAccountBalance and removeAccount) which called such actions together without allowing for such a situation. Those methods were overriden in the PersistentExpenseManager class, where the methods of Android's SQLiteDatabase class, beginTransaction(), setTransactionSuccessful(), and endTransaction() were used to ensure consistency.
+
+When a new account is inserted, or an old account is deleted, the dropdown lists of accounts and the transaction logs shown on the screen must be updated. Buttons were added at the base of each screen to manually refresh those views. If, without refreshing with these buttons, some action is attempted using an account which is no longer in the system, an error message will be displayed.
+
+
+
 ## Description
 During this assignment we will be self-learning how to use an embedded database in an android application. This project is an android application that act as a skeleton. Following is the structure of the application.
 
