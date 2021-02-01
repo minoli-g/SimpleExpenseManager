@@ -15,6 +15,7 @@ import java.util.Locale;
 
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.DBAccess;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.TransactionDAO;
+import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.exception.InvalidAccountException;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.model.Account;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.model.ExpenseType;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.model.Transaction;
@@ -43,6 +44,19 @@ public class PersistentTransactionDAO implements TransactionDAO {
 
 
         long newRowID = db.insert(DBAccess.TransactionTable.TABLE_NAME, null, transaction);
+
+    }
+
+    @Override
+    public void removeTransactions(String accountNo) {
+
+        SQLiteDatabase db = dbAccess.getWritableDatabase();
+        String[] whereArgs = {accountNo};
+        String whereClause = DBAccess.AccountTable.COLUMN_ACC_NO + " =?";
+
+        int x = db.delete(DBAccess.TransactionTable.TABLE_NAME,whereClause,whereArgs);
+
+        Log.e("Removed Trans of ",accountNo);
 
     }
 

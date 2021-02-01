@@ -47,18 +47,24 @@ public class PersistentExpenseManager extends ExpenseManager {
     }
 
     @Override
+    public void removeAccount(String accountNo) throws InvalidAccountException {
+
+        SQLiteDatabase db = dbAccess.getWritableDatabase();
+
+        db.beginTransaction();     //to keep DB in consistent state, grouping transactions.
+        try {
+            super.removeAccount(accountNo); //there are many transactions inside this.
+            db.setTransactionSuccessful();
+        } catch (Exception e){
+            throw e;
+        } finally {
+            db.endTransaction();
+        }
+
+    }
+
+    @Override
     public void setup() {
-        /*** Begin generating dummy data for In-Memory implementation ***/
-
-        /*TransactionDAO inMemoryTransactionDAO = new InMemoryTransactionDAO();
-        setTransactionsDAO(inMemoryTransactionDAO);
-
-        AccountDAO inMemoryAccountDAO = new InMemoryAccountDAO();
-        AccountDAO persistent = new PersistentAccountDAO(context);
-
-        setAccountsDAO(persistent);
-        //setAccountsDAO(inMemoryAccountDAO);
-         */
 
         AccountDAO persistentADO = new PersistentAccountDAO(dbAccess);
         TransactionDAO persistentTDO = new PersistentTransactionDAO(dbAccess);
@@ -66,7 +72,9 @@ public class PersistentExpenseManager extends ExpenseManager {
         setAccountsDAO(persistentADO);
         setTransactionsDAO(persistentTDO);
 
-        // dummy data
+        //Dummy data is added in DBAccess Class, when setting up database for the first time.
+
+        /**
         Account dummyAcct1 = new Account("12345A", "Yoda Bank", "Anakin Skywalker", 10000.0);
         Account dummyAcct2 = new Account("78945Z", "Clone BC", "Obi-Wan Kenobi", 80000.0);
         getAccountsDAO().addAccount(dummyAcct1);

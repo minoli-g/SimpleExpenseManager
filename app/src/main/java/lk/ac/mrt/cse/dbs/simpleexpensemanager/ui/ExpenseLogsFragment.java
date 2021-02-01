@@ -18,9 +18,11 @@ package lk.ac.mrt.cse.dbs.simpleexpensemanager.ui;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -37,8 +39,9 @@ import static lk.ac.mrt.cse.dbs.simpleexpensemanager.Constants.EXPENSE_MANAGER;
 /**
  *
  */
-public class ExpenseLogsFragment extends Fragment {
+public class ExpenseLogsFragment extends Fragment implements View.OnClickListener {
     private ExpenseManager currentExpenseManager;
+    private Button refreshAccountsButton;
 
     public static ExpenseLogsFragment newInstance(ExpenseManager expenseManager) {
         ExpenseLogsFragment expenseLogsFragment = new ExpenseLogsFragment();
@@ -57,6 +60,9 @@ public class ExpenseLogsFragment extends Fragment {
         TableLayout logsTableLayout = (TableLayout) rootView.findViewById(R.id.logs_table);
         TableRow tableRowHeader = (TableRow) rootView.findViewById(R.id.logs_table_header);
 
+        refreshAccountsButton = (Button) rootView.findViewById(R.id.refresh_accounts);
+        refreshAccountsButton.setOnClickListener(this);
+
         currentExpenseManager = (ExpenseManager) getArguments().get(EXPENSE_MANAGER);
         List<Transaction> transactionList = new ArrayList<>();
         if (currentExpenseManager != null) {
@@ -64,6 +70,21 @@ public class ExpenseLogsFragment extends Fragment {
         }
         generateTransactionsTable(rootView, logsTableLayout, transactionList);
         return rootView;
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+
+            case R.id.refresh_accounts:
+                //reloading the fragment
+                Fragment currentFragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.container);
+                FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+                fragmentTransaction.detach(currentFragment);
+                fragmentTransaction.attach(currentFragment);
+                fragmentTransaction.commit();
+                break;
+        }
     }
 
     private void generateTransactionsTable(View rootView, TableLayout logsTableLayout,

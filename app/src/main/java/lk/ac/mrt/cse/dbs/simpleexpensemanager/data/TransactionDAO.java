@@ -38,6 +38,12 @@ public interface TransactionDAO {
     public void logTransaction(Date date, String accountNo, ExpenseType expenseType, double amount);
 
     /***
+     * Delete all transactions tied to a particular account
+     * @param accountNo
+     */
+    public void removeTransactions(String accountNo);
+
+    /***
      * Return all the transactions logged.
      *
      * @return - a list of all the transactions

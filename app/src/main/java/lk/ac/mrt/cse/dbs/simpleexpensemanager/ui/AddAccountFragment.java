@@ -16,16 +16,25 @@
 
 package lk.ac.mrt.cse.dbs.simpleexpensemanager.ui;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
+
+import java.util.List;
 
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.R;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.control.ExpenseManager;
+import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.exception.InvalidAccountException;
+import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.model.ExpenseType;
 
 import static lk.ac.mrt.cse.dbs.simpleexpensemanager.Constants.EXPENSE_MANAGER;
 /**
@@ -33,6 +42,9 @@ import static lk.ac.mrt.cse.dbs.simpleexpensemanager.Constants.EXPENSE_MANAGER;
  */
 public class AddAccountFragment extends Fragment implements View.OnClickListener {
     private ExpenseManager currentExpenseManager;
+    private Spinner accountSelector;
+    private Button deleteAccountButton;
+    private Button refreshAccountsButton;
     private EditText accountNumber;
     private EditText bankName;
     private EditText accountHolderName;
@@ -60,7 +72,27 @@ public class AddAccountFragment extends Fragment implements View.OnClickListener
         addAccount = (Button) rootView.findViewById(R.id.add_account);
         addAccount.setOnClickListener(this);
 
+        accountSelector = (Spinner) rootView.findViewById(R.id.account_selector);
+
         currentExpenseManager = (ExpenseManager) getArguments().get(EXPENSE_MANAGER);
+
+        final List<String> accountsList = currentExpenseManager.getAccountNumbersList();
+
+        ArrayAdapter<String> adapter = null;
+        if (currentExpenseManager != null) {
+            adapter = new ArrayAdapter<>(this.getActivity(), R.layout.support_simple_spinner_dropdown_item,
+                    //currentExpenseManager.getAccountNumbersList());
+                    accountsList);
+        }
+        accountSelector.setAdapter(adapter);
+
+        deleteAccountButton = (Button) rootView.findViewById(R.id.delete_account);
+        refreshAccountsButton = (Button) rootView.findViewById(R.id.refresh_accounts);
+
+        deleteAccountButton.setOnClickListener(this);
+        refreshAccountsButton.setOnClickListener(this);
+
+         
         return rootView;
     }
 
@@ -99,6 +131,44 @@ public class AddAccountFragment extends Fragment implements View.OnClickListener
                             Double.parseDouble(initialBalanceStr));
                 }
                 cleanUp();
+                break;
+
+            case R.id.delete_account:
+                //delete the selected account
+                String selectedAccount = (String) accountSelector.getSelectedItem();
+
+                if (currentExpenseManager != null) {
+                    try {
+                        currentExpenseManager.removeAccount(selectedAccount);
+                    } catch (InvalidAccountException e) {
+                        new AlertDialog.Builder(this.getActivity())
+                                .setTitle(this.getString(R.string.msg_account_delete_unable) + selectedAccount)
+                                .setMessage(e.getMessage())
+                                .setNeutralButton(this.getString(R.string.msg_ok),
+                                        new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                dialog.cancel();
+                                            }
+                                        }).setIcon(android.R.drawable.ic_dialog_alert).show();
+
+                    }
+                }
+                break;
+
+            case R.id.refresh_accounts:
+                //refresh accounts list
+                View rootView = getView();
+                accountSelector = (Spinner) rootView.findViewById(R.id.account_selector);
+                final List<String> accountsList = currentExpenseManager.getAccountNumbersList();
+                ArrayAdapter<String> adapter = null;
+                if (currentExpenseManager != null) {
+                    adapter = new ArrayAdapter<>(this.getActivity(), R.layout.support_simple_spinner_dropdown_item,
+                            //currentExpenseManager.getAccountNumbersList());
+                            accountsList);
+                }
+                accountSelector.setAdapter(adapter);
+                Log.e("L","onclick refreshing accounts");
                 break;
         }
     }

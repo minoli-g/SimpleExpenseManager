@@ -42,6 +42,11 @@ public class InMemoryTransactionDAO implements TransactionDAO {
     }
 
     @Override
+    public void removeTransactions(String accountNo) {
+        //implement if time permits
+    }
+
+    @Override
     public List<Transaction> getAllTransactionLogs() {
         return transactions;
     }

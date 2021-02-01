@@ -5,6 +5,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
 
+import java.security.PublicKey;
+
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.model.Transaction;
 
 public class DBAccess extends SQLiteOpenHelper {
@@ -37,6 +39,10 @@ public class DBAccess extends SQLiteOpenHelper {
         public static final String COLUMN_BANK = "bank";
         public static final String COLUMN_HOLDER = "holder";
         public static final String COLUMN_BALANCE = "balance";
+
+        public static final String PRELIMINARY_SQL_1 = "INSERT INTO " + TABLE_NAME + " VALUES ('12345A','Yoda Bank','Anakin Skywalker',10000.0);";
+        public static final String PRELIMINARY_SQL_2 = "INSERT INTO " + TABLE_NAME + " VALUES ('78945Z','Clone BC','Obi-Wan Kenobi',80000.0);";
+
     }
 
     public static class TransactionTable implements BaseColumns{
@@ -51,6 +57,8 @@ public class DBAccess extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(SQL_CREATE_ACCOUNT_TABLE);
         db.execSQL(SQL_CREATE_TRANSACTION_TABLE);
+        db.execSQL(AccountTable.PRELIMINARY_SQL_1);
+        db.execSQL(AccountTable.PRELIMINARY_SQL_2);
     }
 
     @Override

@@ -123,11 +123,19 @@ public class PersistentAccountDAO implements AccountDAO{
         }
     }
 
-    /**Unused Methods**/
 
     @Override
     public void removeAccount(String accountNo) throws InvalidAccountException {
 
+        SQLiteDatabase db = dbAccess.getWritableDatabase();
+        String[] whereArgs = {accountNo};
+        String whereClause = DBAccess.AccountTable.COLUMN_ACC_NO + " =?";
+
+        int x = db.delete(DBAccess.AccountTable.TABLE_NAME,whereClause,whereArgs);
+
+        if (x==0){ throw new InvalidAccountException("Account not found"); }
+
+        Log.e("Removed",accountNo);
     }
 
     @Override

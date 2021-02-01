@@ -116,6 +116,7 @@ public class ManageExpensesFragment extends Fragment implements View.OnClickList
         switch (view.getId()) {
 
             case R.id.refresh_accounts:
+
                 View rootView = getView();
                 accountSelector = (Spinner) rootView.findViewById(R.id.account_selector);
                 final List<String> accountsList = currentExpenseManager.getAccountNumbersList();
